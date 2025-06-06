@@ -1,3 +1,5 @@
+"""Entry point for processing log files and orchestrating analysis."""
+
 import json
 import logging
 from datetime import datetime, timezone

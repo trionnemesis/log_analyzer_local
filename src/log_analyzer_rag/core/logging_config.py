@@ -1,3 +1,5 @@
+"""Utility for configuring project-wide logging."""
+
 import logging
 import sys
 from .config import settings

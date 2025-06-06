@@ -1,3 +1,5 @@
+"""Utilities for scoring log lines and updating the FAISS index."""
+
 import logging
 from typing import List, Tuple
 

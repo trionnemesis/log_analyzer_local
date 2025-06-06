@@ -1,3 +1,5 @@
+"""FAISS based vector store helper classes."""
+
 import logging
 from pathlib import Path
 from typing import List, Tuple, Optional

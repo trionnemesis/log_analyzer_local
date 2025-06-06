@@ -1,3 +1,11 @@
+"""Application configuration module.
+
+此模組負責讀取及初始化專案所需的各項設定，
+包含路徑位置、模型名稱以及成本控制參數等。
+所有設定皆透過 ``pydantic-settings`` 讀取環境變數，
+並提供 ``settings`` 物件供其他模組使用。
+"""
+
 import os
 from pathlib import Path
 from typing import Optional

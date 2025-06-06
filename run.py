@@ -1,3 +1,5 @@
+"""CLI for running the log analysis pipeline."""
+
 import json
 import logging
 from pathlib import Path
