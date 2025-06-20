@@ -71,8 +71,8 @@ def main():
     logger.info("=" * 50)
 
     # 檢查關鍵配置
-    if not settings.GEMINI_API_KEY:
-        logger.error("錯誤：環境變數 GEMINI_API_KEY 未設定。LLM 功能將停用。")
+    if not settings.OLLAMA_API_URL:
+        logger.error("錯誤：環境變數 OLLAMA_API_URL 未設定。LLM 功能將停用。")
 
     # 尋找並處理日誌
     log_files_to_process = find_log_files(settings.LMS_TARGET_LOG_DIR)
