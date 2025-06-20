@@ -9,7 +9,7 @@ from typing import List, Dict, Any
 from .core.config import settings
 # 移除 fast_score, embed, VECTOR_DB 的導入，因為它們已被封裝到 indexer 中
 from .data_processing.indexer import update_vector_index # <--- 新增導入
-from .rag_pipeline.llm import llm_analyse, GEMINI_ENABLED
+from .rag_pipeline.llm import llm_analyse, LLM_ENABLED
 from .utils.file_tracker import tail_since
 
 logger = logging.getLogger(__name__)
@@ -38,7 +38,7 @@ def process_and_analyze_logs(log_paths: List[Path]) -> List[Dict[str, Any]]:
     top_lines_content = [line for _, line in top_scored_lines_with_scores]
 
     # 3. LLM 分析
-    llm_analyses = llm_analyse(top_lines_content) if GEMINI_ENABLED else [None] * len(top_lines_content)
+    llm_analyses = llm_analyse(top_lines_content) if LLM_ENABLED else [None] * len(top_lines_content)
 
     # 4. 彙整結果 (此部分不變)
     exported_results: List[Dict[str, Any]] = []
