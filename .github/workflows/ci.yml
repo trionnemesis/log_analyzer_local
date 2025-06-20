@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: ["*"]
+    branches: ["**"]
   pull_request:
 
 jobs:
@@ -16,4 +16,4 @@ jobs:
       - name: Install minimal dependencies
         run: pip install --upgrade pip
       - name: Compile source
-        run: python -m py_compile run.py src/log_analyzer_rag/**/*.py
+        run: python -m py_compile $(git ls-files '*.py')
