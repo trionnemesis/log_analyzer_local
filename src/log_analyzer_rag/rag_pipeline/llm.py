@@ -77,9 +77,11 @@ JSON Output:
 """
 
 
+
 def _query_ollama_batch(prompts: List[str]) -> List[str]:
     """一次性向 Ollama 發送多個 prompt 並取得回應列表。"""
     payload = json.dumps({"model": settings.LLM_MODEL_NAME, "prompt": prompts, "stream": False}).encode("utf-8")
+
     req = urllib.request.Request(
         settings.OLLAMA_API_URL,
         data=payload,
@@ -87,6 +89,7 @@ def _query_ollama_batch(prompts: List[str]) -> List[str]:
     )
     with urllib.request.urlopen(req, timeout=60) as resp:
         data = resp.read().decode("utf-8")
+
 
     try:
         resp_json = json.loads(data)
@@ -99,6 +102,13 @@ def _query_ollama_batch(prompts: List[str]) -> List[str]:
     except Exception:
         pass
     return [data]
+
+    try:
+        resp_json = json.loads(data)
+        return resp_json.get("response", "")
+    except Exception:
+        return data
+
 
 
 def llm_analyse(lines: List[str]) -> List[Optional[Dict[str, Any]]]:
@@ -138,6 +148,7 @@ def llm_analyse(lines: List[str]) -> List[Optional[Dict[str, Any]]]:
         return results
 
     logger.info(f"準備呼叫 LLM 分析 {len(batch_prompts)} 筆日誌。")
+
     total_in_tokens_batch = sum(len(p.split()) for p in batch_prompts)
     total_out_tokens_batch = 0
     try:
@@ -161,6 +172,32 @@ def llm_analyse(lines: List[str]) -> List[Optional[Dict[str, Any]]]:
         CACHE.put(lines[original_idx], analysis_result)
         out_tok = len(response_text.split())
         total_out_tokens_batch += out_tok
+
+    total_in_tokens_batch = 0
+    total_out_tokens_batch = 0
+    for i, prompt in enumerate(batch_prompts):
+        try:
+            response_text = _query_ollama(prompt)
+            analysis_result = json.loads(response_text)
+            original_idx = original_indices_to_query[i]
+            results[original_idx] = analysis_result
+            CACHE.put(lines[original_idx], analysis_result)
+            in_tok = len(prompt.split())
+            out_tok = len(response_text.split())
+            total_in_tokens_batch += in_tok
+            total_out_tokens_batch += out_tok
+        except Exception as e:
+            logger.error(f"LLM 回應處理失敗: {e}")
+            original_idx = original_indices_to_query[i]
+            error_analysis = {
+                "is_attack": True,
+                "attack_type": "LLM Error",
+                "reason": str(e),
+                "severity": "Medium",
+            }
+            results[original_idx] = error_analysis
+            CACHE.put(lines[original_idx], error_analysis)
+
 
     COST_TRACKER.add_usage(total_in_tokens_batch, total_out_tokens_batch)
     logger.info(
