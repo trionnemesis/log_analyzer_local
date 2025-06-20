@@ -80,27 +80,6 @@ JSON Output:
 def _query_ollama_batch(prompts: List[str]) -> List[str]:
     """一次性向 Ollama 發送多個 prompt 並取得回應列表。"""
     payload = json.dumps({"model": settings.LLM_MODEL_NAME, "prompt": prompts, "stream": False}).encode("utf-8")
-    req = urllib.request.Request(
-        settings.OLLAMA_API_URL,
-        data=payload,
-        headers={"Content-Type": "application/json"},
-    )
-    with urllib.request.urlopen(req, timeout=60) as resp:
-        data = resp.read().decode("utf-8")
-
-    try:
-        resp_json = json.loads(data)
-        if isinstance(resp_json, list):
-            return [r.get("response", "") if isinstance(r, dict) else str(r) for r in resp_json]
-        if isinstance(resp_json, dict) and "responses" in resp_json:
-            return [r.get("response", "") if isinstance(r, dict) else str(r) for r in resp_json["responses"]]
-        if isinstance(resp_json, dict) and "response" in resp_json:
-            return [resp_json.get("response", "")]
-    except Exception:
-        pass
-    return [data]
-
-
 def llm_analyse(lines: List[str]) -> List[Optional[Dict[str, Any]]]:
     if not LLM_ENABLED:
         logger.warning("LLM 未啟用，跳過分析。")
@@ -138,6 +117,7 @@ def llm_analyse(lines: List[str]) -> List[Optional[Dict[str, Any]]]:
         return results
 
     logger.info(f"準備呼叫 LLM 分析 {len(batch_prompts)} 筆日誌。")
+
     total_in_tokens_batch = sum(len(p.split()) for p in batch_prompts)
     total_out_tokens_batch = 0
     try:
@@ -161,7 +141,6 @@ def llm_analyse(lines: List[str]) -> List[Optional[Dict[str, Any]]]:
         CACHE.put(lines[original_idx], analysis_result)
         out_tok = len(response_text.split())
         total_out_tokens_batch += out_tok
-
     COST_TRACKER.add_usage(total_in_tokens_batch, total_out_tokens_batch)
     logger.info(
         f"LLM 呼叫完成。Input tokens (approx): {total_in_tokens_batch}, Output tokens (approx): {total_out_tokens_batch}"
