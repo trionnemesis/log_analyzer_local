@@ -1,3 +1,5 @@
+"""File utilities for tracking log file read positions."""
+
 import bz2
 import gzip
 import io

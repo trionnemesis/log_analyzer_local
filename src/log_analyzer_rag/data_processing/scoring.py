@@ -1,3 +1,5 @@
+"""Heuristic scoring functions used during log preprocessing."""
+
 import logging
 from typing import List
 

@@ -1,3 +1,5 @@
+"""Text embedding utilities used for vectorizing log lines."""
+
 import hashlib
 import logging
 import os

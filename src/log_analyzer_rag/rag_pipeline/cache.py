@@ -1,3 +1,5 @@
+"""Simple in-memory LRU cache used by the LLM pipeline."""
+
 import logging
 from collections import OrderedDict
 from typing import Any, Optional

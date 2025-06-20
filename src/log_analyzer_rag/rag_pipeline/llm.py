@@ -1,3 +1,5 @@
+"""LLM analysis pipeline wrapped around LangChain and Gemini models."""
+
 import json
 import logging
 from datetime import datetime, timedelta, timezone
