@@ -24,19 +24,27 @@ except Exception as e:
     SENTENCE_MODEL = None
 
 
-def embed(text: str) -> List[float]:
-    """
-    產生嵌入向量。
-    優先使用 SentenceTransformer，若失敗則退回使用 SHA-256 偽向量。
-    """
+def embed_lines(lines: List[str]) -> List[List[float]]:
+    """一次性將多行文字轉換為嵌入向量。"""
+    if not lines:
+        return []
+
     if SENTENCE_MODEL:
-        embedding_vector = SENTENCE_MODEL.encode(text, convert_to_numpy=True)
-        return embedding_vector.tolist()
+        embeddings = SENTENCE_MODEL.encode(lines, convert_to_numpy=True)
+        return [emb.tolist() for emb in embeddings]
 
     logger.warning("正在使用 SHA-256 偽向量，這不適用於生產環境！")
-    digest = hashlib.sha256(text.encode('utf-8', 'replace')).digest()
-    vec_template = list(digest)
-    vec = []
-    while len(vec) < settings.EMBED_DIM:
-        vec.extend(vec_template)
-    return [v / 255.0 for v in vec[:settings.EMBED_DIM]]
+    vectors: List[List[float]] = []
+    for text in lines:
+        digest = hashlib.sha256(text.encode('utf-8', 'replace')).digest()
+        vec_template = list(digest)
+        vec = []
+        while len(vec) < settings.EMBED_DIM:
+            vec.extend(vec_template)
+        vectors.append([v / 255.0 for v in vec[:settings.EMBED_DIM]])
+    return vectors
+
+
+def embed(text: str) -> List[float]:
+    """兼容單行輸入的舊 API。"""
+    return embed_lines([text])[0]

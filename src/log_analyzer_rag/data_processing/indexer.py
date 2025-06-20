@@ -5,7 +5,7 @@ from typing import List, Tuple
 
 from ..core.config import settings
 from .scoring import fast_score
-from ..rag_pipeline.embedding import embed
+from ..rag_pipeline.embedding import embed_lines
 from ..rag_pipeline.vector_store import VECTOR_DB
 
 logger = logging.getLogger(__name__)
@@ -55,7 +55,7 @@ def update_vector_index(new_log_lines: List[str]) -> List[Tuple[float, str]]:
     if VECTOR_DB.index is not None:
         try:
             logger.info("正在產生文字嵌入向量...")
-            line_embeddings = [embed(line) for line in top_lines_content]
+            line_embeddings = embed_lines(top_lines_content)
 
             if line_embeddings:
                 logger.info("正在將新向量新增至 FAISS 索引...")
