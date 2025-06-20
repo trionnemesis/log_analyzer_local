@@ -41,7 +41,7 @@ def find_log_files(target_dir: Path) -> List[Path]:
 
 
 def export_results(results: List[Dict[str, Any]], output_file: Path):
-    """將分析結果匯出成 JSON 檔案"""
+    """將分析結果匯出成 NDJSON 檔案 (一行一筆 JSON)。"""
     if not results:
         logger.info("本次執行沒有產生新的可匯出的結構化分析結果。")
         return
@@ -49,8 +49,10 @@ def export_results(results: List[Dict[str, Any]], output_file: Path):
     logger.info(f"準備將 {len(results)} 筆結構化分析結果匯出至 {output_file}")
     try:
         output_file.parent.mkdir(parents=True, exist_ok=True)
-        with open(output_file, "w", encoding="utf-8") as f_out:
-            json.dump(results, f_out, ensure_ascii=False, indent=2)
+        with open(output_file, "a", encoding="utf-8") as f_out:
+            for rec in results:
+                json_line = json.dumps(rec, ensure_ascii=False)
+                f_out.write(json_line + "\n")
         logger.info(f"分析結果已成功匯出至 {output_file}")
     except PermissionError:
         logger.critical(
