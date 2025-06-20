@@ -32,8 +32,8 @@ class Settings(BaseSettings):
     # --------------------------------------------------------------------------
     # 核心設定
     # --------------------------------------------------------------------------
-    # Google Gemini API Key，這是執行 LLM 分析的必要條件
-    GEMINI_API_KEY: Optional[str] = None
+    # 本機 Ollama API URL
+    OLLAMA_API_URL: str = "http://localhost:11434/api/generate"
 
     # --------------------------------------------------------------------------
     # 檔案路徑設定
@@ -55,7 +55,7 @@ class Settings(BaseSettings):
     # Sentence Transformer 的嵌入模型名稱
     EMBEDDING_MODEL_NAME: str = 'paraphrase-multilingual-MiniLM-L12-v2'
     # 要使用的 LLM 模型名稱
-    LLM_MODEL_NAME: str = "gemini-1.5-flash-latest"
+    LLM_MODEL_NAME: str = "llama3"
     # 嵌入向量的維度 (預設值，會被 embedding.py 中的模型實際維度動態覆蓋)
     EMBED_DIM: int = 384
 
